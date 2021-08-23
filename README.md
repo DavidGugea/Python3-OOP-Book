@@ -228,3 +228,35 @@ print(longkeys.longest_key()) # result : longest yet
 
 Here again, when we write ```self.keys()``` we mean the instance of the class LongNameDict, that inherits from dict. We can iterate over its instances as we can over every other dict since it inherits it.
 
+## 3. Overriding and super
+
+In order to override a method you don't need any syntax, you just have to write the method normally and when the instance of the subclass will use that method, the overriden method will have priority for the instantiated sub class.
+
+```Python
+class Contact:
+    all_contacts = list()
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        Contact.all_contacts.append(self)
+
+class Friend(Contact):
+    def __init__(self, name, email, phone):
+        self.name = name
+        self.email = email
+        self.phone = phone
+```
+
+You can see in our example that we are overriding the method ```__init__```.
+The bad thing about overriding this method in our case is that we have to repeat code since we have to declare name & email twice. 
+In order to not repeat code and make it look cleaner you can use the ```super()``` method that will call an object that servers as an instance of the upper class where you can call any method you want:
+
+```Python
+class Friend(Contact):
+    def __init__(self, name, email, phone):
+        super().__init__(name, email)
+        self.phone = phone
+```
+
+In this case, instead of rewriting everything, we just called the ```__init__``` method from the upper class to do the work for us.
