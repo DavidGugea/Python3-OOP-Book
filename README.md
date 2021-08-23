@@ -111,6 +111,8 @@ class MySubClass(object):
     pass
 ```
 
+## 1. Basic Inheritance
+
 In order to create a class variable you have to use the class name when modifying it:
 
 ```Python
@@ -146,16 +148,83 @@ except AttributeError:
     print("Contact doesn't have any method called order")
 
 s.order("I need pliers")
-```
 
+"""
 Inside the console:
-
-```
-$ python contact_supplier.py
 
 Some Body somebody@example.net
 Sup Plier supplier@example.net
 Contact doesn't have any method called order
 If this were a real system we would sen I need pliers order to Sup Plier
+"""
 ```
+
+## 2. Extending built-ins
+
+In order to extend built ins you have to write the name of the built in data type/structure inside the parantehses just like when you derive from any other class:
+
+```Python
+class ContactList(list):
+    def search(self, name):
+        '''Return all contacts that contain the search value in their name.'''
+        matching_contacts = list()
+        for contact in self:
+            if name in contact.name:
+                matching_contacts.append(contact)
+        
+        return matching_contacts
+```
+
+When we write ```for contact in self```, we already know that self is the object instantiated from this class, and since we derive the class ContactList from list, we know that we can iterate over a ContactList as if we would iterate over any other normal list. We also have all the other methods that a normal list has since we are deriving the class ContactList from it.
+
+Here is an example of how we can use extended built ins:
+
+```Python
+class Contact:
+    all_contacts = ContactList()
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        Contact.all_contacts.append(self)
+
+c1 = Contact("John A", "johna@example.net")
+c2 = Contact("John B", "johnb@example.net")
+c3 = Contact("Jenna C", "jennac@example.net")
+
+for c in Contact.all_contacts.search("John"):
+    print(c.name)
+
+"""
+Inside the console:
+
+John A
+John B
+
+"""
+```
+
+You can extend any kind of built in without any problem. Here is an example of extending a dict:
+
+```Python
+class LongNameDict(dict):
+    def longest_key(self):
+        longest = None
+        for key in self.keys():
+           if not longest or len(key) > len(longest):
+               longest = key
+           else:
+               continue
+        
+        return longest
+
+longkeys = LongNameDict()
+longkeys["hello"] = 1
+longkeys["longest yet"] = 5
+longkeys["hello2"] = "world"
+
+print(longkeys.longest_key()) # result : longest yet
+```
+
+Here again, when we write ```self.keys()``` we mean the instance of the class LongNameDict, that inherits from dict. We can iterate over its instances as we can over every other dict since it inherits it.
 
