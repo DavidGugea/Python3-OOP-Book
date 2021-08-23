@@ -96,3 +96,66 @@ class Database:
 The way you run the files that use relative imports has to be different. You have to be outside the parent directory and run it at a script ```-m``` and write the path correctly ( with . not / ):
 
 ```python -m parent_directory.ecommerce.database```
+
+---
+
+# Chapter 3: When Objects are Alike
+
+Duplicate code is considered very ineffective in programming. That's why we should use inheritance when possible. Inheritance allows us to build 'is-a' relationships between objects. Abstract values are stored in the upper class while we put the specific ones in the subclass. 
+
+All python classes are subclasses of the class namde **object**. It's just like in JavaScript where all objects in the end inherit the object Object. 
+The class objects provides all the double-underscore values that every objects has end gets to use. We don't have to specify that an class inherits from object, it's set by default. However, if you want to specify that a class inherits from object, you have to use the following syntax:
+
+```Python
+class MySubClass(object):
+    pass
+```
+
+In order to create a class variable you have to use the class name when modifying it:
+
+```Python
+class Contact:
+    all_contacts = list()
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        Contact.all_contacts.append(self)
+```
+
+In this example all_contacts is the class variable. Every time we make an instace of the class Contact, that instance is added to Contact.all_contacts. If you use ```self``` on that property you will only change it inside the instance, not inside the general class.
+
+In order for a class to inherit another class you have to add it inside the parantheses() and it will be able to use everything that the upper class has used:
+
+```Python
+class Supplier(Contact):
+    def order(self, order):
+        print("If this were a real system we would send {0} order to {1}".format(
+            order, self.name
+        ))
+
+c = Contact("Some Body", "somebody@example.net")
+s = Supplier("Sup Plier", "supplier@example.net")
+
+print(c.name, c.email)
+print(s.name, s.email)
+
+try:
+    c.order("I need pliers")
+except AttributeError:
+    print("Contact doesn't have any method called order")
+
+s.order("I need pliers")
+```
+
+Inside the console:
+
+```
+$ python contact_supplier.py
+
+Some Body somebody@example.net
+Sup Plier supplier@example.net
+Contact doesn't have any method called order
+If this were a real system we would sen I need pliers order to Sup Plier
+```
+
