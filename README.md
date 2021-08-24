@@ -260,3 +260,183 @@ class Friend(Contact):
 ```
 
 In this case, instead of rewriting everything, we just called the ```__init__``` method from the upper class to do the work for us.
+
+## 4. Multiple Inheritance
+
+A class can inherit from multiple parent classes. Here is an example:
+
+```Python
+class Contact:
+    all_contacts = list()
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+        Contact.all_contacts.append(self)
+
+class MailSender:
+    def send_email(self, message):
+        print("Sending email to {0}".format(self.email))
+
+        # Add e-mail logic here
+
+class EmailableContact(Contact, MailSender):
+    pass
+
+e = EmailableContact("John Smith", "jsmith@example.net")
+print(Contact.all_contacts)
+e.send_email("Hello, test e-mail here")
+```
+
+The problem that we have with multiple inheritance is that it's very hard to debug it and it's very easy to make mistakes. **It is recommended not to use multiple inheritance.**
+
+**This type of inheritance creates a diamond**:
+
+```Python
+class BaseClass:
+    num_base_calls = 0
+    def call_me(self):
+        print("Calling method in Base Class")
+        self.num_base_calls += 1
+
+class LeftSubclass(BaseClass):
+    num_left_calls = 0
+    def call_me(self):
+        BaseClass.call_me(self)
+
+        print("Calling method on Left Subclass")
+        self.num_left_calls += 1
+    
+class RightSubclass(BaseClass):
+    num_right_calls = 0
+    def call_me(self):
+        BaseClass.call_me(self)
+
+        print("Calling method on Right Subclass.")
+        self.num_right_calls += 1
+
+class Subclass(LeftSubclass, RightSubclass):
+    num_sub_calls = 0
+    def call_me(self):
+        LeftSubclass.call_me(self)
+        RightSubclass.call_me(self)
+
+        print("Calling method on Subclass")
+        self.num_sub_calls += 1
+
+s = Subclass()
+s.call_me()
+
+print(s.num_sub_calls)
+print(s.num_left_calls)
+print(s.num_right_calls)
+print(s.num_base_calls)
+
+"""
+Console:
+
+Calling method in Base Class
+Calling method on Left Subclass
+Calling method in Base Class
+Calling method on Right Subclass.
+Calling method on Subclass
+1
+1
+1
+2
+
+"""
+```
+
+All classes that don't inherit from any specific class inherit from the object **object**, meaning that we are transforming this into a diamond. You can see that the base class has been called two times. The problem with this is that we  might have a database inside the baseclass that makes transcations twice since it's called twice. This would be very hard to debug and it can cause a lot of damage ( that's why it's best to not use multiple inheritance ).
+We can solve this problem by using **super()**. In this case **super() doesn't go to the 'upper-class', it target the 'next'-class**.
+
+```Python
+class BaseClass:
+    num_base_calls = 0
+    def call_me(self):
+        print("Calling method in Base Class")
+        self.num_base_calls += 1
+
+class LeftSubclass(BaseClass):
+    num_left_calls = 0
+    def call_me(self):
+        super().call_me()
+
+        print("Calling method on Left Subclass")
+        self.num_left_calls += 1
+    
+class RightSubclass(BaseClass):
+    num_right_calls = 0
+    def call_me(self):
+        super().call_me()
+
+        print("Calling method on Right Subclass.")
+        self.num_right_calls += 1
+
+class Subclass(LeftSubclass, RightSubclass):
+    num_sub_calls = 0
+    def call_me(self):
+        super().call_me()
+
+        print("Calling method on Subclass")
+        self.num_sub_calls += 1
+
+s = Subclass()
+s.call_me()
+
+print(s.num_sub_calls)
+print(s.num_left_calls)
+print(s.num_right_calls)
+print(s.num_base_calls)
+
+"""
+Console:
+
+Calling method in Base Class
+Calling method on Right Subclass.
+Calling method on Left Subclass
+Calling method on Subclass
+1
+1
+1
+1
+
+"""
+```
+
+You can see that super() solved our problem since when we call super() on the left diamond class it will go to the right super class, meaning that the base class won't be called twice.
+
+We still have some problems with this. We don't always know what class on which side of the diamond will be the first target of super(), that's why we should use kwargs instead of passing arguments down manually:
+
+```Python
+class Contact:
+    all_contacts = list()
+
+    def __init__(self, name='', email='', **kwargs):
+        super().__init__(**kwargs)
+
+        self.name = name
+        self.email = email
+        self.all_contacts.append(self)
+
+class AddressHolder:
+    def __init__(self, street='', city='', state='', code='', **kwargs):
+        super().__init__(**kwargs)
+
+        self.street = street
+        self.city = city
+        self.state = state
+        self.code = code
+
+class Friend(Contact, AddressHolder):
+    def __init__(self, phone="", **kwargs):
+        super().__init__(**kwargs)
+        self.phone = phone
+```
+
+This will still make the code difficult and very prone to bugs but easier easier to debug. We can do any of the following:
+
+* Include phone in kwargs inside the Friend class
+* Make phone an explicit keyword but update it to kwargs befoer calling super
+* Make phone an explicit keyword but pass it down to super with kwargs, togheter. ( ```super().__init__(phone=phone, **kwargs))``` )

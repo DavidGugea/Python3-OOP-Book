@@ -31,9 +31,7 @@ class Subclass(LeftSubclass, RightSubclass):
 s = Subclass()
 s.call_me()
 
-"""
 print(s.num_sub_calls)
 print(s.num_left_calls)
 print(s.num_right_calls)
 print(s.num_base_calls)
-"""
