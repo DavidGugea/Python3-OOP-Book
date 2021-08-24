@@ -440,3 +440,72 @@ This will still make the code difficult and very prone to bugs but easier easier
 * Include phone in kwargs inside the Friend class
 * Make phone an explicit keyword but update it to kwargs befoer calling super
 * Make phone an explicit keyword but pass it down to super with kwargs, togheter. ( ```super().__init__(phone=phone, **kwargs))``` )
+
+## 5. Polymorphism
+
+There is no real polymorphism in python because of duck typing. Duck typing is in the dynamic nature of python ( and many other languages like javascript, Lisp, Lua, Perl, Groovy etc.)
+
+Here is an example of duck typing:
+
+```Python
+class PyCharm:
+    def execute(self):
+        print("Compiling")
+        print("Running")
+
+class MyEditor:
+    def execute(self):
+        print("Spell check")
+        print("Convention Check")
+        print("Compiling")
+        print("Running")
+
+class some_random_class:
+    def execute(self):
+        print("Execute something")
+
+class Laptop:
+    def code(self, ide):
+        ide.execute()
+
+ide = some_random_class()
+
+lapl = Laptop()
+lapl.code(ide)
+```
+
+You can see that we can pass anything we inside the ide argument if it matches the patterns it has to run ( if it has a .execute method ).
+
+Here is a better example of polymorphism where python knows what .play command to execute depending on the object that it is calling that method:
+
+```Python
+class AudioFile:
+    def __init__(self, filename):
+        if not filename.endswith(self. ext):
+            raise Exception("Invalid file format")
+
+        self.filename = filename
+    
+class MP3File(AudioFile):
+    ext = "mp3"
+    def play(self):
+        print("Playing {0} as mp3".format(self.filename))
+
+class WavFile(AudioFile):
+    ext = "wav"
+    def play(self):
+        print("Playing {0}".format(self.filename))
+    
+class OggFile(AudioFile):
+    ext = "ogg"
+    def play(self):
+        print("Playing {0} as ogg".format(self.filename))
+
+ogg = OggFile("myfile.ogg")
+ogg.play()
+
+mp3 = MP3File("myfile.mp3")
+mp3.play()
+
+not_an_mp3 = MP3File("myfile.ogg")
+```
