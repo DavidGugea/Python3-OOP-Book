@@ -1,0 +1,3 @@
+# Analysis Phase
+
+This is an add-on to the self-made notes app from chapter 2. I will change the app class and make it handle authorization and authentication. On top of that I will refactor some of the classes to work more with exceptions and self made exceptions rather than just if-else statements. The design won't change much, you can look at the design from https://github.com/DavidGugea/Python3-OOP-Book/tree/master/Chapter2/SelfMadeProjects/notes_console_app since it will most probably be the same.
