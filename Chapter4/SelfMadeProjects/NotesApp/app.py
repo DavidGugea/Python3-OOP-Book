@@ -1,12 +1,27 @@
 from Notebook import Notebook
-import time
 from Note import Note
 from NoteDates import NoteDates
+from User import User
+import time
+import hashlib
+import sys
+
+class WrongUserInputType(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+class PasswordTooShort(Exception): pass
+class WrongLoginInfo(Exception): pass
+class AccountDataAlreadyInUseException(Exception): pass
+class NoPermission(Exception): pass
 
 class App:
     def __init__(self):
         '''The app class contains a notebook that is private since it should only be changed based on user input from the asked questions'''
         self._notebook = Notebook()
+        self.users = dict()
+        self.current_user = None;
 
     def errorMessage(self, msg):
         '''Special error message for the user. It doesn't raise any errors, it's just an error message'''
@@ -20,6 +35,72 @@ class App:
             print()
 
     def run(self):
+        """Start with registration/log-in first"""
+        while True:
+            self.current_user = None
+            print("Register or login ?")
+            print("1. Register")
+            print("2. Login")
+            print("3. Exit")
+
+            user_input = input("Choice -- > ")
+            try:
+                user_input = int(user_input)
+                if user_input == 1:
+                    self.register()
+                elif user_input == 2:
+                    self.login()
+                elif user_input == 3:
+                    sys.exit(0)
+                else:
+                    raise WrongUserInputType("Your choice has to be 1 or 2. [ your choice was -- > {0} ]".format(user_input))
+            except WrongUserInputType as e:
+                print(e.message)
+                print("Try again")
+    
+    def register(self):
+        try:
+            firstName = input("First name -- > ")
+            lastName = input("Last name -- > ")
+            username = input("Username -- > ")
+            password = input("Password ( len > 8 ) -- > ")
+            pass_encrypted = hashlib.sha256(password.encode("utf-8")).hexdigest()
+            premiumUser = bool(input("Premium user ? -- > "))
+
+            if(len(password) <= 8):
+                raise PasswordTooShort
+            if pass_encrypted in self.users.keys():
+                raise AccountDataAlreadyInUseException
+        except PasswordTooShort:
+            print("Your password was too short, please try again")
+            sys.exit(0)
+        except AccountDataAlreadyInUseException:
+            print("Account already in use")
+            sys.exit(0)
+        else:
+            user_to_add = User(firstName, lastName, username, password, premiumUser)
+            self.users.setdefault(user_to_add.get_hashed_pass(), user_to_add)
+    
+    def login(self):
+        try:
+            username = input("Your username -- > ")
+            password = input("Your password -- > ")
+            pass_encrypted = hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+            for user_password in self.users.keys():
+                if pass_encrypted == user_password and self.users[pass_encrypted].username == username:
+                    self.current_user = self.users.get(pass_encrypted)
+
+            if self.current_user == None:
+                raise WrongLoginInfo
+        except WrongLoginInfo:
+            print("Your username and password are wrong. Try again.")
+        else:
+            print("You have been successfully logged in")
+            print("Current user -- > {0}".format(self.current_user.username))
+            self.start_notes()
+
+    def start_notes(self):
         """Run the app"""
         """
             1. Add a note
@@ -113,17 +194,29 @@ class App:
         self._notebook.addNote(note_to_add)
 
     def deleteFromNotebook_byName(self):
-        note_name = input("Name of the note -- > ")
-        self._notebook.deleteNote_byName(note_name)
+        try:
+            if self.current_user.premium_user == True:
+                note_name = input("Name of the note -- > ")
+                self._notebook.deleteNote_byName(note_name)
+            else:
+                raise NoPermission
+        except NoPermission:
+            print("It looks like you don't have to rights to execute this command")
 
     def deleteFromNotebook_byTags(self):
         note_tags = self.getTags()
         self._notebook.deleteNotes_byTags(note_tags)
 
     def searchInNotebook_byName(self):
-        note_name = input("Name of the note -- > ")
-        note_found = self._notebook.searchBy_Name(note_name)
-        self.displayNote(note_found)
+        try:
+            if self.current_user.premium_user == True:
+                note_name = input("Name of the note -- > ")
+                note_found = self._notebook.searchBy_Name(note_name)
+                self.displayNote(note_found)
+            else:
+                raise NoPermission
+        except NoPermission:
+            print("It looks like you don't have to rights to execute this command")
 
     def searchInNotebook_byTags(self):
         note_tags = self.getTags()

@@ -509,3 +509,102 @@ mp3.play()
 
 not_an_mp3 = MP3File("myfile.ogg")
 ```
+
+---
+
+# Chapter 4: Expecting the Unexpected
+
+In order to handle multiple types of exceptions at once you can use the following syntax:
+
+```Python
+try:
+    if (a < b):
+        raise ValueError
+    else:
+        raise TypeError
+except (ValueError, TypeError):
+    print("The following errors have been handled : {0}, {1}".format(
+        ValueError.__class__.__name__,
+        TypeError.__class__.__name__,
+    ))
+```
+
+Exceptions can also be captured inside variables so you can handle them in detail if you need to:
+
+```Python
+try:
+    # Code
+except ValueError as e:
+    # Code
+```
+
+On top of ```try``` and ```except``` we also have ```else``` and ```finally```. The ```else``` block happens every time there are no exceptions raised while ```finally``` happens all the time at the end of everything.
+
+```Python
+try:
+    print("I might raise an exception")
+
+    if random.choice(list(range(1, 11))) % 2 == 0:
+        print("I didn't raise any exceptions")
+    else:
+        raise ValueError
+except ValueError:
+    print("I will handle the ValueError")
+else:
+    print("No errors have been raised")
+finally:
+    print("You will always see this")
+```
+
+In order to create your own exceptions you have to know how the exception hierarchy looks like
+
+![Exception Hierarchy](screenshots_for_notes/ExceptionHierarchy.PNG)
+
+You can see that SystemExit, KeyboardInterrupt and Exception all 3 inherit from the base class BaseException.
+
+SystemExit is raised when the program is naturally closed ( usually by using sys.exit ). KeyboardInterrupt is raised when the program is interrupted by a series of keys ( ctrl + c for example ).
+Exception is also a base class for most exceptions that we see ( for example ValueError, TypeError, etc. ). It's not a wise thing to use the ```except``` keyword without specifying what you want to except as an error since everything can be an error in that case: SystemExist, KeyboardInterrupt, Exception. You always want to specify what you want to except. 
+The exception logic goes from the most 'niched' exception to the most general ones. Example:
+
+```Python
+except PasswordTooLong:
+    pass
+except PasswordNotCorrect:
+    pass
+except Exception:
+    pass
+```
+
+In this example we have first checked if the password is too long first since the user will never be able to log in if the password doesn't match the patterns of the other passwords in the db as well, so there's no point in searching. Afterwise we excepted the PasswordNotCorrect since the user's password pattern was correct, but the password was wrong. In the end we excepted all the other general exceptions that might occur in some way or another.
+
+Here is how you create your own exception.
+
+You can create a very basic exception with no arguments and no overriding by just creating a class that inherits Exception:
+
+```Python
+class CustomException(Exception) : pass
+```
+
+This will behave like a normal exception since it derives from exception. You will have an ```__init__(*args)``` and everything, just like any other normal exceptions.
+
+You can also override the Exception class and add special properties and methods to your custom exception:
+
+```Python
+class CustomException(Exception):
+    def __init__(self, message, value):
+        self.message = message
+        self.value = value
+
+    def custom_method(self):
+        print("This is a custom method")
+
+try:
+    # Code
+    raise CustomException("This message will be raised", 25)
+except CustomException as e:
+    e.custom_method()
+    print(e.message)
+    print(e.value)
+```
+
+You can almost always use if-else statements instead of try-except clauses. The good thing about handling exceptions is that you can easily keep track of the flow of the code and manage it better.
