@@ -608,3 +608,160 @@ except CustomException as e:
 ```
 
 You can almost always use if-else statements instead of try-except clauses. The good thing about handling exceptions is that you can easily keep track of the flow of the code and manage it better.
+
+# Chapter 5: When to use object-oriented programming
+
+Sometimes we don't need to make create classes, sometimes it's better to just stick to variables and functions.
+
+Objects are things that have both data and behavior. If you only work with data you should use data-structures like lists, sets or tuples. On the other hand, if you only work with behavior then you should use functions. Let's look at the following example:
+
+```Python
+import math
+
+square = [(1, 1), (1, 2), (2, 2), (2, 1)]
+
+def distance(p1, p2):
+    return math.sqrt((p1[0]-p2[0])**2 + (p1[1] - p2[1])**2)
+
+def perimeter(polygon):
+    perimeter = 0 
+    points = polygon + [polygon[0]]
+    for i in range(len(polygon)):
+        perimeter += distance(points[i], points[i+1])
+    
+    return perimeter
+
+print(perimeter(square))
+```
+
+You can see that we haven't used any classes, just standard variables and functions. Is it even worth it to make a class here ? Let's see !
+
+```Python
+import math
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def distance(self, p2):
+        return math.sqrt((self.x - p2.x)**2 + (self.y - p2.y)**2)
+
+class Polygon:
+    def __init__(self):
+        self.vertices = list()
+    
+    def add_point(self, point):
+        self.vertices.append((point))
+
+    def perimeter(self):
+        perimeter = 0
+        points = self.vertices + [self.vertices[0]]
+
+        for i in range((len(self.vertices))):
+            perimeter += points[i].distance(points[i+1])
+        
+        return perimeter
+
+square = Polygon()
+square.add_point(Point(1, 1))
+square.add_point(Point(1, 2))
+square.add_point(Point(2, 2))
+square.add_point(Point(2, 1))
+
+print(square.perimeter())
+```
+
+You can see that in this case, we wrote more code, but this code is much more easier to read and to expand. In the second object we don't know exactly how the list should look like, it's not intuitive that we have to write the points inside tuples where the first value is the x-coordinate and the second value is the y-coordinate. We don't exactly know how the function perimeter works. We need a lot of external documentation.
+
+In contrast to the first example, the oop code is self documenting.
+
+Code length however is not the best indicator for code complexity. **The key lies in simplicity when in comes to OOP**. You should never write a one-liner for example since you most probably won't be able to understand it the day after and it will be very hard for other programmers to read it.
+
+If you have a certain set of values that constantly work with a certain set of function then it is most probably in your best interest to wrap them inside a function. In our case, maybe we only need to calculate the perimeter of the polygon once, maybe we don't have 100 polygon objects or maybe we are sure that we will never need to extend the polygon class, to add for example color or texture properties to it, or some other methods. In that case we can just use some simple functions, there is no need for classes if we know that we will never extend that class and we only need one short function.
+
+When making the decision if you should or shouldn't use classes, it always comes down to what you are going to do with them in the future.
+
+On top of that you also have to pay attention to the interaction between objects. If inheritance or composition comes into play then you might need to rethink your decision in form of design and structure.
+
+> Don't rush to use an object just because you can use an object, but never neglect to create a class when you need to use a class.
+
+In many programming languages we have the concept of encapsulation, where you set a property to private and then you change its basic behaviors through setters and getters. You are basically protecting the property from the outside of the class while controlling the data that comes into it and the data that gets out of it.
+
+We can do that in python as well ( although we can't really set a property to be private )
+
+Here is an example:
+
+```Python
+class Silly:
+    def __init__(self):
+        self._silly = None
+
+    def _get_silly(self):
+        print("You are getting silly")
+        return self._silly
+
+    def _set_silly(self, value):
+        print("You are making silly {0}".format(value))
+        self._silly = value
+
+    def _del_silly(self):
+        print("You killed silly!")
+        del self._silly
+
+    silly = property(_get_silly, _set_silly, _del_silly, "This is a silly property")
+```
+
+In this case we have a 'Silly' class that does nothing but tell you when you try to get the value of the 'private' silly property, when you set it to a new value and when you delete it.
+
+In order to create a set these behaviors for the "private" property "silly" you need to use the property method.
+
+```Python
+property_name = property(GETTERS_FUNCTION, SETTER_FUNCTION, DELETE_FUNCTION, DOCSTRING)
+```
+
+Another way of doing this is using decorators:
+
+```Python
+class Foo:
+    def __init__(self):
+        self._foo = None
+
+    @property
+    def foo(self):
+        """This docstring for the entire property is written inside the getter method"""
+        return self._foo
+
+    @foo.setter
+    def foo(self, value):
+        self._foo = value
+
+    @foo.delete
+    def foo(self):
+        del self._foo
+```
+
+The ```@property``` decorator is also the setter for the property and it also has the docstring inside it. The setter and the delete operator are both used by writing the name of the property and then .setter or .delete.
+
+In general you can always use a standard normal property if you don't need to control/add behavior to that property.
+
+In the following example you can see why a property might be useful. 
+
+```Python
+from urllib.request import urlopen
+
+class WebPage:
+    def __init__(self, url):
+        self.url = url
+        self._content = None
+
+    @property
+    def content(self):
+        if not self._content:
+            print("Retrieving New Page ... ")
+            self._content = urlopen(self.url).read()
+
+        return self._content
+```
+
+In this example we have used a getter for the content so we don't always download it from the url. We just download it once ( which at first it might take some time ) and then we check if it's None and if it's not None which will be the case after we've downloaded it, we will just return the content.
