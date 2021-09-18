@@ -765,3 +765,17 @@ class WebPage:
 ```
 
 In this example we have used a getter for the content so we don't always download it from the url. We just download it once ( which at first it might take some time ) and then we check if it's None and if it's not None which will be the case after we've downloaded it, we will just return the content.
+
+### Removing duplicate code
+
+While managing objects you will come across duplicate code. Why is duplicate code a bad thing?
+
+It mainly comes down to readability and maintainability. Bugs are very hard to find and fix since usually when you find a bug and fix it inside duplicate code, you will have to fix the same bug somewhere else inside the code where the method/function has been repeated.
+
+Whenever you are coding you should use the **Dont't Repeat Yourself** principl, or ***DRY*** principle. Dry code is maintainable code.
+
+You can always try to use things like inheritance or composition in order to change some slight behaviors inside your code but never duplicate code, simply because it's not maintainable.
+
+Even if duplicating code might be easier sometimes than actually adding some new parameters and more logic to a method, it's better for the long term. While you might thing that you are losing more time by adding extra comments and extra documentation when you could just duplicate your code, you will lose more time trying to duplicate or fix bugs inside the code.
+
+> Always make the effort to refactor your code to be easier to read instead of writiting bad code that is only easier to write.
