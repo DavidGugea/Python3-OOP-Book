@@ -783,3 +783,4 @@ Even if duplicating code might be easier sometimes than actually adding some new
 # Chapter 6: Python Data Structures
 
 Basic python data structures and collections.
+The case study had to be slightly modified from the book since I used ```XAMPP```
