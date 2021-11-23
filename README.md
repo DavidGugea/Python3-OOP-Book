@@ -779,3 +779,7 @@ You can always try to use things like inheritance or composition in order to cha
 Even if duplicating code might be easier sometimes than actually adding some new parameters and more logic to a method, it's better for the long term. While you might thing that you are losing more time by adding extra comments and extra documentation when you could just duplicate your code, you will lose more time trying to duplicate or fix bugs inside the code.
 
 > Always make the effort to refactor your code to be easier to read instead of writiting bad code that is only easier to write.
+
+# Chapter 6: Python Data Structures
+
+Basic python data structures and collections.
