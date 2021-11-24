@@ -784,3 +784,237 @@ Even if duplicating code might be easier sometimes than actually adding some new
 
 Basic python data structures and collections.
 The case study had to be slightly modified from the book since I used ```XAMPP```
+
+# Chapter 7: Python Object-oriented Shortcuts
+
+## Built-in functions
+
+### Enumerate
+
+Enumerate creates a list of tuples, where the first object in each tuple is the index adn the second is the original item.
+
+```Python
+x = ['a', 'b', 'c', 'd', 'e']
+
+for index, value in enumerate(x):
+    print("{0} -- > {1}".format(value, index))
+
+"""
+Output:
+a -- > 0
+b -- > 1
+c -- > 2
+d -- > 3
+e -- > 4
+
+"""
+```
+
+### Zip
+
+Zip takes two or more sequences and creates a new sequence of tuples. Each tuple contains one element from each list. Example:
+
+```Python
+tuple1 = [1, 2, 3, 4]
+tuple2 = [5, 6, 7, 8]
+tuple3 = [9, 10, 11, 12]
+
+print(list(zip(tuple1, tuple2, tuple3)))
+
+"""
+Output:
+[(1, 5, 9), (2, 6, 10), (3, 7, 11), (4, 8, 12)]
+"""
+```
+
+If it is not possible to take an element from each list because a list doesn't contain the same amount of elements as the other lists, the entire low will be ignored and the zip will only work depending on the shortest sequence in the given sequences:
+
+```Python
+tuple1 = [1, 2, 3, 4]
+tuple2 = [5, 6, 7]
+tuple3 = [9, 10, 11, 12, 13, 14, 15]
+
+print(list(zip(tuple1, tuple2, tuple3)))
+
+"""
+Output:
+[(1, 5, 9), (2, 6, 10), (3, 7, 11)]
+"""
+```
+
+## Comprehensions
+
+For loops in python allow you to loop over sequences that support the iterable protocol so you can get over each element in the sequence.
+Supporting the iterable protocl means that an object has an ```__iter__``` method that returns another object that supports the iterator protocol. It means that your object has a ```__next__``` method that either returns the next element from your sequence or returns a ```StopIteration``` exception when all the items have been returned from the sequence.
+
+**Comprehensions are highly optimized in python and they are a lot faster than ```for``` loops**
+
+### List Comprehension
+
+Example:
+
+```Python
+input_strings = ['1', '5', '28', '131', '3']
+
+output_integers = []
+for num in input_strings:
+    output_integers.append(int(num))
+
+
+print(output_integers)
+```
+
+Now this is the same example with list comprehension:
+
+```Python
+input_strings = ['1', '5', '28', '131', '3']
+output_integers = [int(num) for num in input_strings]
+```
+
+Not only is it a lot readable, it is also a lot faster if we would have to iterate over a larger sequence of items.
+
+You can also add statements to your comprehensions:
+
+```Python
+input_strings = ['1', '5', '28', '131', '3']
+output_integers = [int(num) for num in input_strings if len(n) < 3>]
+```
+
+### Set and dictionary comprehension
+
+Set and dictionary comprehensions are built with curly braces
+
+Here is an example for a set comprehension:
+
+```Python
+numbers = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]
+set_numbers = {num for num in numbers if num < 5}
+print(set_numbers) # {1, 2, 3, 4}
+```
+
+Here is an example for a dictionary comprehension:
+
+```Python
+numbers = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]
+dictionary_numbers = {enumerate_value[1] : enumerate_value[0] for enumerate_value in enumerate(numbers) if enumerate_value[1] < 4}
+print(dictionary_numbers) # Output {1: 1, 2: 3, 3: 5}
+```
+
+### Generator Expressions
+
+If you want to process a new sequence without loading your memory with a new data structure like a list, set, tuple etc. because you only want to iterate over the elements of the list then you should use generator expressions.
+Generator expressions are just like the other comprehensions, but in this case we use normal parantheses. They return back a generator, not a data structure, like the other comprehensions. You can iterate over the generator and building it would take a lot less time than it would take if you would build a data structure out of it.
+
+The built-in method ```range``` returns a generator. Here is an example where we try to make a list containing all the numbers from 0 to 123456789 using ```range```. You'll see that creating the numbers with ```range``` will take a lot less time than trying to convert them into a list.
+
+Example:
+
+```Python
+numbers = list(range(1, 123456789)) # Takes a long time
+```
+
+Here is the same example with ```range```
+
+```Python
+numbers = range(1, 123456789) # Instant
+```
+
+Here is another example using normal generator expressions ( remember that we use normal parantheses for generator expressions ).
+
+```Python
+with open("test.txt") as test_file:
+    lines_less_than_20_chars = (line for line in test_file.readlines() if len(line) < 20)
+
+    for line in lines_less_than_20_chars:
+        print(line)
+```
+
+In this case we are reading a file and we only want to see the lines that have less than 20 characters. If we would put all the lines into a list and iterate over each item in the list to check if the item has less than 20 characters or not, it wouldn't be a problem if the list wouldn't have a large amount of items. 
+
+However, using generator expressions in this case is better because not only is it easier to read, but the generator expressions return a generator back, meaning that you can use that generator to iterate over each item in the list without ocuppying much memory and potentially blocking the program since it might take too long to convert the generator to a list.
+
+### Generator 
+
+If you want to build a generator you will need the ```yield``` keyword. The ```yield``` keyword generates a value. The method, where the ```yield``` keyword is used, returns a generator containg all the items generated by the ```yield``` keyword.
+
+```Python
+def generate_something():
+    yield 1
+    yield 2
+    yield 3
+    yield 4
+    yield 5
+
+for i in generate_something():
+    print(i)
+
+# Output:
+# 1
+# 2
+# 3
+# 4
+# 5
+```
+
+## Arguments
+
+### Default arguments
+
+You can add default arguments to methods and functions in python.
+
+```Python
+def test_function(a=1, b=2, c=3):
+    return a + b + c
+
+print(test_function()) # 6
+print(test_function(5)) # 10
+print(test_function(5, 6)) # 14
+print(test_function(5, 7, 8)) # 20
+print(test_function(c=2, a=8, b=5)) # 15
+```
+
+### Variable argument list
+
+You can add a list to your argument list.
+
+```Python
+def test_function(*numbers):
+    return sum(numbers)
+
+print(test_function(1)) # 1
+print(test_function(1, 2)) # 3
+print(test_function(1, 2, 3)) # 6
+print(test_function(1, 2, 3, 4)) # 10
+print(test_function(1, 2, 3, 4, 5)) # 15
+```
+
+These types of arguments are also called **variadic arguments** or **varargs**.
+
+### Arbitrary Keyword arguments
+
+You can of arbitary keyword arguments using ```**kwargs```. Example:
+
+```Python
+def test_function(**kwargs):
+    print(kwargs.items())
+
+print(test_function(a=1, b=2, c=3)) # Output : dict_item([('a', 1), ('b', 2)])
+```
+
+### Unpacking arguments
+
+You can unpack arguments and pass them inside methods directly. Example:
+
+```Python
+def show_args=(arg1, arg2, arg3="THREE"):
+    print(arg1, arg2, arg3)
+
+some_args = range(3)
+more_args = {
+    "arg1" : "ONE",
+    "arg2" : "TWO"
+}
+
+show_args(*some_args)
+show_args(**more_args)
+```
