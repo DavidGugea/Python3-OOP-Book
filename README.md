@@ -1021,6 +1021,12 @@ show_args(**more_args)
 
 # Chapter 8: Python Design Pattern I
 
+## What are design patterns ?
+
+Design patterns are patterns that combined the structure and the logic of the code in order to solve a common problem in software development. 
+
+> Design patterns are an attempt to bring this same formal definition for correctly design structures to software engineering. There are many different design patterns to solve different genreal problems. People who create design patterns first idenitfy a common problem faced by developeres in a wide variety of situations. They then suggest what might be considered the ideal solution for that problem, in terms of object-oriented design
+
 ## Decorator Pattern
 
 The decorator pattern describes wrapping a class/function into a wrapper and modifying it's behavior at runtime, not at compile time. That means that you can modify the behavior of a component, without actually changing the code of that component. 
