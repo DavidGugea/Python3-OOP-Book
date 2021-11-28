@@ -1435,3 +1435,13 @@ if __name__ == '__main__':
     print(o1)
     print(o2)
 ```
+
+##  Template pattern
+
+> The template pattern is useful for removing duplicate code; it's an implementation to support the DRY ( "don't repeat yourself" ) principle. It is designed for situations where we ahve several different tasks to accomplish that have some, but not all, steps in common. The common steps are implemented in a base class, and the different stpes are overriden in subclasses to provide custom behavior. In some ways, it's like a generalized strategy pattern, except similar sections of the algorithms are shared using a base class
+
+The template pattern contains a base class with all the common operations that the sub classes might use and then contains multiple sub classes that have specific operations.
+
+Here is the structure for the template pattern:
+
+![Template pattern UML](screenshots_for_notes/Chapter8_screenshots/TemplatePatternStructureUML.PNG)
