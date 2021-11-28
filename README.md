@@ -1191,3 +1191,81 @@ testMethod(10)
 ```
 
 You will get the same exact result but it is easier to see that the method has been decorated when it was created and it's also easier to read and maintain.
+
+## Observer Pattern 
+
+> The observer pattern is useful for state monitoring and event handling situations. This pattern ensures a single core object can be monitored by an unknown, possibly expanding, array of "observer" objects. Whenever a value on the core object cahnges, it lets all the observer objects know that a change has occureed, by calling an ```update()``` method. Each observer may be responsible for diffenret tasks whenever the core object changes; the core object doesn't know or care what those tasks are, and the observers don't typically know or care what other observers are doing. 
+
+So in the observer pattern you have a class that you want to monitor and in order to do that you have a property inside your class that is an array of observers. Every time something specific changes in the class, like a property or when a method gets invoked, you can notify the observers that monitor the class. The array might expand or condense, the observers might change. However, this is a very practical pattern since you don't have to monitor all these changes in the observed class and you can have for example an observer that saves the changes in a database and another observer that logs the changes in the console. These are 2 seperate tasks that can be done with 2 different observers, which is much more easier to read and maintain and if you ever want to add another observer, so if you want something else to happen while monitoring a proeprty/method from the observer class, you can just add another observer, without writing all the code of the observer in the observed object, making things easier to maintain.
+
+Here is an example with an ```Inventory``` class and a class that monitors the inventory:
+
+```Python
+class Inventory:
+    def __init__(self):
+        self.observers = []
+        self._product = None
+        self._quantity = 0
+
+    def attach(self, observer):
+        self.observers.append(observer)
+
+    @property
+    def product(self):
+        return self._product
+
+    @product.setter
+    def product(self, value):
+        self._product = value
+        self._update_observers()
+
+    @property
+    def quantity(self):
+        return self._quantity
+
+    @quantity.setter
+    def quantity(self, value):
+        self._quantity = value
+        self._update_observers()
+
+    def _update_observers(self):
+        for observer in self.observers:
+            observer()
+
+
+class ConsoleObserver:
+    def __init__(self, inventory):
+        self.inventory = inventory
+
+    def __call__(self):
+        print(self.inventory.product)
+        print(self.inventory.quantity)
+```
+
+In the class ```Inventory``` we have an array property called ```observers``` that stores all the observers. Whenever the product changes ( in ```@product.setter``` ) and whenever the quantity changes ( in ```@quantity.setter``` ) the ```update()``` method, which in this case is a "private" method called ```_update_observers()``` is called, that updates all the observers about the changes that have been made.
+
+Here is an example how we could implement this:
+
+```Python
+if __name__ == '__main__':
+    i = Inventory()
+    c = ConsoleObserver(i)
+    i.attach(c)
+
+    i.product = "Widget"
+    i.quantity = 5
+
+"""
+Output:
+Widget
+0
+Widget
+5
+"""
+```
+
+The observer has been updated twice. The firce time was when we changed the product and the second time was when we changed the quantity.
+
+> This time when we cahgne the product, there are two sets of output, one for each observer. The key idea here is that we can easily add totally different types of observers that back up the data in a file, database, or internet application at the same time. The observer pattern detaches the code being observerd from the code doing the observing. If we were not using this pattern, we could have had to put code in each of the properties to handle th differnet cases that might come up; loggin tot hte cnosole. updating a database or file, and so on. The code for each of these tasks would all be mixed in with the observerd object. Maintaining it would be a nightmare, and adding new monitoring functionality at a later date would be painful.
+
+![Observer pattern UML](screenshots_for_notes/Chapter8_screenshots/ObserverPatternStructureUML.PNG)
