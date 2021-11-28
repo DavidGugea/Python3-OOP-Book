@@ -1018,3 +1018,176 @@ more_args = {
 show_args(*some_args)
 show_args(**more_args)
 ```
+
+# Chapter 8: Python Design Pattern I
+
+## Decorator Pattern
+
+The decorator pattern describes wrapping a class/function into a wrapper and modifying it's behavior at runtime, not at compile time. That means that you can modify the behavior of a component, without actually changing the code of that component. 
+
+Let's start with an example. Let's say that you have an class called ```Beverage``` that contains a property called ```cost``` and a method ```getCost()``` that returns the cost of that beverage. You also have a property called ```description``` and a method ```getDescription()``` that returns the description of that beverage.
+Now, from the abstract class ```Beverage``` we want to inherit two classes, ```Espresso``` and ```Latte```. This would look something like this:
+
+![Abstract base class beverage with 2 inherited classes espresso and latte](screenshots_for_notes/Chapter8_screenshots/BeverageExampleAbstractBaseClassAndInheritance.PNG)
+
+Now, if we want to add more to our beverages, like milk or whipped cream, we could technically build special classes like :
+
+* ```EspressoWithMilk```
+* ```LatteWithMilk```
+* ```EspressoWithMilkAndCream```
+* ```LatteWithMilkAndCream```
+
+But, as you can see, if we would have 4 or 5 beverages, we would need a lot more classes, which would be very hard to maintain and debug.
+In this case we can use the decorator pattern. When using the decorator pattern you need a component ( a class in this case ) that behaves the same as the other components that you want to wrap ( so it inherits from the abstract base class ) and also contains ( as a property ) a component of the base class. 
+Here is the general idea:
+
+![Decorator pattern structure](screenshots_for_notes/Chapter8_screenshots/DecoratorPatternUMLStructure.PNG)
+
+So, if we would apply this to our example, it would look something like this:
+
+![Decorator pattern full structure](screenshots_for_notes/Chapter8_screenshots/DecoratorPatternFullStructure.PNG)
+
+So, basically, The ```Milk``` and ```Cream``` classes are just decorators. We can have multiple decorators inside each other. That is called **decorator nesting**.
+
+![Decorator nesting example](screenshots_for_notes/Chapter8_screenshots/DecoratorNestingExample.PNG)
+
+Here is an example in C# of how this could look like:
+
+```CSharp
+abstract class Beverage
+{
+    protected int cost;
+    public string description;
+
+    public virtual int getCost()
+    {
+        return this.cost;
+    }
+    public string getDescription()
+    {
+        return this.description;
+    }
+}
+class Espresso : Beverage
+{
+    public Espresso()
+    {
+        this.cost = 3;
+        this.description = "Espresso coffee/";
+    }
+}
+class Latte : Beverage
+{
+    public Latte()
+    {
+        this.cost = 5;
+        this.description = "Latte coffee/";
+    }
+}
+abstract class AddOnDecorator : Beverage
+{
+    protected Beverage beverage;
+
+    public override int getCost()
+    {
+        return this.cost + beverage.getCost();
+    }
+
+    public AddOnDecorator(Beverage beverage)
+    {
+        this.beverage = beverage;
+    }
+}
+class Milk : AddOnDecorator
+{
+    public Milk(Beverage beverage) : base(beverage)
+    {
+        this.cost = 3;
+        this.description = this.beverage.description + "With Milk/";
+    }
+}
+class Cream : AddOnDecorator
+{
+    public Cream(Beverage beverage) : base(beverage)
+    {
+        this.cost = 5;
+        this.description = this.beverage.description + "With Cream/";
+    }
+}
+```
+
+Now because we have used the decorator pattern, look at how easy it is for us to combine beverages with ingredients like milk and/or cream:
+
+```CSharp
+class Program
+{
+    static void Main(string[] args)
+    {
+        Beverage LatteWithMilkAndCream = new Cream(new Milk(new Latte()));
+        Beverage EspressoWithCream = new Cream(new Espresso());
+        Beverage EspressoWithMilkAndCream = new Cream(new Milk(new Espresso()));
+        Beverage LatteWithMilk = new Milk(new Latte());
+    }
+}
+```
+
+You can see that we don't have to build new classes like ```LatteWithMilkAndCream``` or ```EspressoWithCream```, we can just use the decorator pattern and wrap Cream and Milk with normal beverages. It is also very sustainable and readable. It is very easy to change the properties of the beverages or to add new ones, without creating thousands of additional classes.
+
+We use decorators in the same way in Python. Here is an example of a decorator in Python, applied to a function:
+
+```Python
+def decoratorFunction(methodToWrap):
+    def wrapper(*args, **kwargs):
+        print("Before the method")
+        methodToWrap(*args, **kwargs)
+        print("After the method")
+
+    return wrapper
+
+
+def testMethod(num):
+    print("Inside the method. Given argument -- > {0}".format(num))
+
+
+testMethodWrapped = decoratorFunction(testMethod)
+testMethodWrapped(5)
+print("-"*25)
+testMethodWrapped(10)
+
+"""
+Output:
+Before the method
+Inside the method. Given argument -- > 5
+After the method
+-------------------------
+Before the method
+Inside the method. Given argument -- > 10
+After the method
+"""
+```
+
+The function ```decoratorFunction``` returns a wrapper. The wrapper, internally, invokes the method given to the ```decoratorFunction```.
+
+In Python, you can use syntactic sugar for decorators with the ```@``` sign. Here is the example above with syntactic sugar:
+
+```Python
+def decoratorMethod(methodToWrap):
+    def wrapper(*args, **kwargs):
+        print("Before the method")
+        methodToWrap(*args, **kwargs)
+        print("After the method")
+
+    return wrapper
+
+
+@decoratorMethod
+def testMethod(num):
+    print("Inside the method. Given argument -- > {0}".format(num))
+
+
+testMethod(5)
+print("-"*25)
+testMethod(10)
+```
+
+You will get the same exact result but it is easier to see that the method has been decorated when it was created and it's also easier to read and maintain.
