@@ -1394,3 +1394,38 @@ You are inside the first state. We will stop the cycle
 We change from the first state to the second state to the third state and then we stop the cycle.
 
 > While the two patterns ahve identical structures, their purposes are very different. The strategy pattern is used to choose an algorithm at runtime; generally, only one of those algorithms is going to be chosen for a particular use case. The state pattern, on the other hand is designed to allow switching between different state dynamically, at some process evolves. In code, the primary difference is that the strategy pattern is not typically aware of other strategy objects. In the state pattern, either the state or the context needs to know which other state that it can switch to.
+
+## Singleton Pattern ( don't use it )
+
+> The basic idea behind the singleton patter nis to allow exactly one instance of a certain object to exist. Such objects often need to be referenced by a wide variety of other objects, and passing references to the manager object around to the method and constructors that need them can make code hard to read.
+> Instead, when a singleton is used, the seperate objects request the single instance of the manager object from the class, so a reference to it does not need to be passed around.
+
+The singleton pattern states that you can make a globally accessible instance of a class that can only be instantiated once.
+
+This is the UML structure:
+
+![Singleton pattern UML](screenshots_for_notes/Chapter8_screenshots/SingletonStructureUML.PNG)
+
+This is, however, a pattern that should be avoided, since it can interfere with threading/parallel programming, automated testing etc.
+
+Here is how you could implement it in Python ( technically, the constructor of a singleton is private, but we can't do that in Python ):
+
+```Python
+class OneOnly:
+    _singleton = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._singleton:
+            cls._singleton = super(OneOnly, cls).__new__(cls, *args, **kwargs)
+
+        return cls._singleton
+
+
+if __name__ == '__main__':
+    o1 = OneOnly()
+    o2 = OneOnly()
+
+    print(o1 == o2) # True
+    print(o1)
+    print(o2)
+```
