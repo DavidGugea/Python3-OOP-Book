@@ -1269,3 +1269,66 @@ The observer has been updated twice. The firce time was when we changed the prod
 > This time when we cahgne the product, there are two sets of output, one for each observer. The key idea here is that we can easily add totally different types of observers that back up the data in a file, database, or internet application at the same time. The observer pattern detaches the code being observerd from the code doing the observing. If we were not using this pattern, we could have had to put code in each of the properties to handle th differnet cases that might come up; loggin tot hte cnosole. updating a database or file, and so on. The code for each of these tasks would all be mixed in with the observerd object. Maintaining it would be a nightmare, and adding new monitoring functionality at a later date would be painful.
 
 ![Observer pattern UML](screenshots_for_notes/Chapter8_screenshots/ObserverPatternStructureUML.PNG)
+
+## Strategy pattern
+
+> The strategy pattern is a common demonstration of abstraction in object-oriented programming. The pattern implements different solutions to a single problem each in a different object. The client code can then choose the most appropriate implementation dynamically at runtime.
+> Typically , different algorithms have different trade-offs; one might be faster than another, but uses a lot more memory, while a third algorithm may be most suitable when multiple CPUs are present or a distributed system is provided. 
+
+Here is the UML Structure for the strategy pattern:
+
+![Strategy pattern UML](screenshots_for_notes/Chapter8_screenshots/StrategyPatternStructureUML.PNG)
+
+> The ```User``` code connecting to  the strategy pattern simply needs to know that it is dealing with the ```Abstraction``` interface. The actual implementation chosen will perform the same task, but in possibly ver different ways; either way, the interface is identical.
+
+So the strategy pattern allows you to use different strategies, that all have the same structure and concept, in a structured and maintainable way. A good example would be sorting algorithms. The idea and structure of sorting algorithms is the same, they need a sequence as an argument and they return the sorted sequence. There are a lot of sorting algorithms and sometimes, you might want to choose one over the other.
+
+That code, without using the strategy pattern, would look something like this:
+
+```Python
+class SortSomething:
+    def __init__(self, sequence_to_sort):
+        self.sequence_to_sort = sequence_to_sort
+
+    def sort(self):
+        if # boolean statement to check if merge sort should be used:
+            # implementation of merge sort
+        elif # boolean statement to check if quick sort should be used:
+            # implementation of quick sort
+        elif # boolean statement to check if heap sort should be used: 
+            # implementation of heap sort
+```
+
+The code in this case would be very hard to read and very hard to maintain since we have this very long ```if```-statements where we check if merge, quick or heap sort should be implemented. It would be much easier to maintain and read the code if we would use the strategy pattern. Here is how it would look like:
+
+```Python
+class SortSomething:
+    def __init__(self, sequence_to_sort):
+        self.sequence_to_sort = sequence_to_sort
+
+    def sort(self):
+        if # boolean statement to check if merge sort should be used:
+            MergeSort(self.sequence_to_sort).sort()
+        elif # boolean statement to check if quick sort should be used:
+            QuickSort(self.sequence_to_sort).sort()
+        elif # boolean statement to check if heap sort should be used: 
+            HeapSort(self.sequence_to_sort).sort()
+
+class SortingAlgorithm:
+    def __init__(self, sequence_to_sort):
+        self.sequence_to_sort = sequence_to_sort 
+
+class QuickSort(SortingAlgorithm):
+    def sort(self):
+        # sorting
+
+class MergeSort(SortingAlgorithm):
+    def sort(self):
+        # sorting
+
+class HeapSort(SortingAlgorithm):
+    def sort(self):
+        # sorting
+```
+
+The strategy pattern is not really used in python, or not as we might think it should be used. That is because functions are first class citizens. That means that we could just store the functions inside a tuple in the ```SortSomething``` class and choose whatever we need. That doesn't mean that we don't implement the strategy pattern, that just means that we implement it in a different way, using different syntax.
