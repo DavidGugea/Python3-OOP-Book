@@ -1332,3 +1332,65 @@ class HeapSort(SortingAlgorithm):
 ```
 
 The strategy pattern is not really used in python, or not as we might think it should be used. That is because functions are first class citizens. That means that we could just store the functions inside a tuple in the ```SortSomething``` class and choose whatever we need. That doesn't mean that we don't implement the strategy pattern, that just means that we implement it in a different way, using different syntax.
+
+## State Pattern
+
+> The goal of the state pattern is to represnet state-transition systems: systems where it is obvious that an object can be in a specific state, and that certain activities may drive it to a different state.
+> To make this work, we need a manager, or context class that provides an interface for switching state. Internally, this class contains a pointer to the currents state; each state knows what other states it is allowed to be in and will transition to those state depending on actions onvoked upon it.
+> so we have two types of classes, the context class and multiple state classes. The context class maintains the current state, and forwards actions to the state classes. The state classes are typically hidden from any other objects that are calling the context; it acts like a black box that happens to perfomr state management internally.
+
+The state pattern is very much like the strategy pattern, they are very similar in the structure as well. In the state pattern, the states much know about each other and the states must know to each states they can jump to. Unlike the strategy pattern, where a specific strategy is typically ony chose once, and only at runtime, when using the state pattern, the core object is able to changed between states and perform different types of actions depending on the state the core object is in at that point in time. The state Context/Manager contains a property ```current_state``` that stores the current state and it contains a method called ```process()``` that is ready to process a certain action, depending on the state that it is in. Furthermore, we have a ```State``` interface that describes how the states should be built and then we have, multiple states that derive from that interface. The state of the context/manager changes internally inside each state ( that's why the states must know about each other and to what states they can move to ) and based on the state that is chosen, the ```process()``` method will perform different types of actions.
+
+Here is the structure of the state pattern in UML:
+
+![State pattern UML](screenshots_for_notes/Chapter8_screenshots/StatePatternStructureUML.PNG)
+
+Here is an example in code:
+
+```Python
+class Context:
+    def __init__(self):
+        self.current_state = None
+
+    def process(self):
+        print("Processing ... ")
+        self.current_state = FirstState("First state").process(self)
+
+class BaseStateClass:
+    def __init__(self, state):
+        self.state = state
+
+
+class FirstState(BaseStateClass):
+    def process(self, manager):
+        print("You are inside the first state. We are going to change to the second state")
+        manager.current_state = SecondState("Second state").process(manager)
+
+
+class SecondState(BaseStateClass):
+    def process(self, manager):
+        print("You are inside the second state. We are going to change to the third state")
+        manager.current_state = ThirdState("Third state").process(manager)
+
+
+class ThirdState(BaseStateClass):
+    def process(self, manager):
+        print("You are inside the first state. We will stop the cycle")
+        manager.current_state = None
+
+
+if __name__ == '__main__':
+    Context().process()
+
+"""
+Output:
+Processing ... 
+You are inside the first state. We are going to change to the second state
+You are inside the second state. We are going to change to the third state
+You are inside the first state. We will stop the cycle
+"""
+```
+
+We change from the first state to the second state to the third state and then we stop the cycle.
+
+> While the two patterns ahve identical structures, their purposes are very different. The strategy pattern is used to choose an algorithm at runtime; generally, only one of those algorithms is going to be chosen for a particular use case. The state pattern, on the other hand is designed to allow switching between different state dynamically, at some process evolves. In code, the primary difference is that the strategy pattern is not typically aware of other strategy objects. In the state pattern, either the state or the context needs to know which other state that it can switch to.
