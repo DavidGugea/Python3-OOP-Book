@@ -1544,3 +1544,55 @@ class Adaptee
     }
 }
 ```
+
+## Facade Pattern
+
+> The facade pattern is designed to provide a simple interface to a complex system of components. The objects in this system may need to be interfact with directly for complex tasks and interactions. Often, however, there is 'typical' usage for the system, and these complicated interactions aren't necessary in that common scenario. The facade pattern allows us to define a new object taht wraps this typical usage of the system. Any code that wants to use the typical functionality can use the single object's simplified interface. If another project or part of the project finds this interface is too simple and needs to access more complicated functionality, it is still able to interfact with the system directly.
+> Facade is, in many ways, like adapter. The primary difference is that the facade is trying to abstract a simpler interface out of a complex system; the adapter is only trying to map one existing interface to another.
+
+When using the facade pattern you can build a class that is a simplified version of a complex system. You can stil use the complex system if you ever need it.
+
+Here is the UML structure:
+
+![Adapter pattern 2 UML](screenshots_for_notes/Chapter9_screenshots/FacadePatternStructureUML.PNG)
+
+Here is an example in python where we have 2 complex systems ( smtplib, imaplib ) and we have built a Facade for those systems that sends emails and gets an inbox of emails called **EmailFacade**:
+
+```Python
+import smtplib
+import imaplib
+
+
+class EmailFacade:
+    def __init__(self, host, username, password):
+        self.host = host
+        self.username = username
+        self.password = password
+
+    def send_email(self, to_email, subject, message):
+        if not "@" in self.username:
+            from_email = "{0}@{1}".format(self.username, self.host)
+        else:
+            from_email = self.username
+
+        message = "From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}".format(
+            from_email, to_email, subject, message
+        )
+
+        smtp = smtplib.SMTP(self.host)
+        smtp.login(self.username, self.password)
+        smtp.sendmail(from_email, [to_email], message)
+
+    def get_inbox(self):
+        mailbox = imaplib.IMAP4(self.host)
+        mailbox.login(bytes(self.username, 'utf8'), bytes(self.password, 'utf8'))
+        mailbox.select()
+        x, data = mailbox.search(None, "ALL")
+        messages = []
+        for num in data[0].split():
+            x, message = mailbox.fetch(num, '(RFC822)')
+            messages.append(message[0][1])
+
+        return messages
+```
+
