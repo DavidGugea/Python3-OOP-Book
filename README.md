@@ -1441,7 +1441,106 @@ if __name__ == '__main__':
 > The template pattern is useful for removing duplicate code; it's an implementation to support the DRY ( "don't repeat yourself" ) principle. It is designed for situations where we ahve several different tasks to accomplish that have some, but not all, steps in common. The common steps are implemented in a base class, and the different stpes are overriden in subclasses to provide custom behavior. In some ways, it's like a generalized strategy pattern, except similar sections of the algorithms are shared using a base class
 
 The template pattern contains a base class with all the common operations that the sub classes might use and then contains multiple sub classes that have specific operations.
-
+jo
 Here is the structure for the template pattern:
 
 ![Template pattern UML](screenshots_for_notes/Chapter8_screenshots/TemplatePatternStructureUML.PNG)
+
+# Chapter 9: Python Design Pattern II
+
+## Adapter Pattern
+
+> ***The adapter pattern is designed to interact with existing code***. We would not design a brand new set of objects that implement the adapter pattern. Adapters are used to allow two pre-existing objects to work together, even if their interfaces are not compatible. Like the keyboard adapters that allow USB keybaord to be plugged into PS/2 ports, an adapter object sits between two different interfaces, translating between them on the fly. The adapter object's sole purpose is to perform this translating job; translating may entail a variety of tasks, such as converting arguments to a different format, rearranging the order of arguments, calling a differently named method, or supplying default arguments.
+> In structure, tthe adapter pattern is similar to a simplified decorator pattern. Decorators typically provide the same interface that they replace, whereas adapters  map between two different interfaces.
+
+The adapter pattern describes creating an object that connects two interfaces together. Instead of copying code and making it work, by just making small adjustments to it, from one interface to another, it is better to make an "adapter" class that connects the two interfaces together. That means that you have a class that rearranges certain methods so that they work on both sides, without having to copy code and only make small adjustments to it, since that would be the DRY ( don't repeat yourself )principle.
+
+Here is the UML structure for the adapter pattern:
+
+![Adapter pattern UML](screenshots_for_notes/Chapter9_screenshots/AdapterPatternStructureUML.PNG)
+
+> Here, Interface 1 is expceting to call a methdo called **make_action(some, arguments)**. We already have this perfect Interface2 class that does everything we want ( and to avoid duplication, we don't want to rewrite it! ), but it provides a method called different_action(other, arguments) instead. The Adapter class implements the **make_action** interface and maps the arguments to the existing interface.
+> The advantage here is that the code that maps from one interface to another is all in one place. The alternative would be to translate it directly in multiple places whnever we need to access this code.
+
+Here is an example in code:
+
+```Python
+import datetime
+
+
+class AgeCalculator:
+    def __init__(self, birthday):
+        self.year, self.month, self.day = (
+            int(x) for x in birthday.split("-")
+        )
+
+    def calculate_age(self, date):
+        year, month, day = (int(x) for x in date.split("-"))
+        age = year - self.year
+        if (month, day) < (self.month, self.day):
+            age -= 1
+
+        return age
+
+
+class DateAgeAdapter:
+    def _str_date_(self, date):
+        return date.strftime("%Y-%m-%d")
+
+    def __init__(self, birthday):
+        birthday = self._str_date_(birthday)
+        self.calculator = AgeCalculator(birthday)
+
+    def get_age(self, date):
+        date = self._str_date_(date)
+        return self.calculator.calculate_age(date)
+```
+
+In this case our first interface is **AgeCalculator**. However, if we want to use **datetime**, we will need an adapter that connect the **AgeCalculator**, that adapter is the **DateAgeAdapter**. This adapter converts **datetime.date**/**datetime.time** into a string that the original **AgeCalculator** can use.
+
+### Summary and C# Example
+
+The adapter pattern converts the interface of a class into another interface. The adapter let's classes work togehter that couldn't otherwise because of incompatible interfaces. The adapter pattern converts the interface of one class into another interface that a **client** ( user code, not specifically a class ) expects.
+
+Here is a representation of the adapter pattern in UML and the code in C#:
+
+![Adapter pattern 2 UML](screenshots_for_notes/Chapter9_screenshots/AdapterPatternStructureUML_CSharp.PNG)
+
+Remember that the **Client** is not an actual class, although it could be but it doesn't have to. The **Client** refers to normal code, it refers to your application. The application wants to use a variable that implements the interface **ITarget**. However, you want to use the **specificRequest** method from the **Adaptee** ( adaptee is the thing that the adapter needs, it's the thing that needs to be adapted to your normal code ). In order to do that you use the class **Adapter** that inherits from the interface that you want your variable to have, that being **ITarget** and, inside the implementation of the **request()** method, it calls the **specificRequest()** method from the Adaptee class.
+
+Here is the code in C#:
+
+```Csharp
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Client 
+        ITarget target = new Adapter(new Adaptee());
+        target.request();
+    }
+}
+interface ITarget
+{
+    void request();
+}
+class Adapter : ITarget
+{
+    private Adaptee adaptee;
+    public Adapter(Adaptee a)
+    {
+        this.adaptee = a;
+    }
+    public void request()
+    {
+        this.adaptee.specificRequest();
+    }
+}
+class Adaptee
+{
+    public void specificRequest()
+    {
+        // Code
+    }
+}
+```
