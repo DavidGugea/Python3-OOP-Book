@@ -1696,3 +1696,125 @@ if __name__ == '__main__':
 ```
 
 The ```FlyweightFactory``` is implemented by using the ```__new__``` constructor.
+
+## Command Pattern
+
+> The command pattern adds a level of abstraction between actions that must be done, and the object that invokes those actions, normally at a later time. In the command pattern, client code creates a ```Command``` object that can be executed at a later date. This object konws about a receiver object that amanges its own internal state when the command is executed on it. The ```Command``` object implements a specific interface ( typically it has an ```execute``` or ```do_action``` method ), and also keeps track of any arguments required to perform the action. Finally, one or more Invoker objects execute at the correct time.
+> A common example of command pattern in action is actions on a grahpical window. Often, an action can be invoked by a mneu item on the menu bar, a keyboard shortcut, a toolbar icon, or a context menu. These are all examples of Invoker objects. The actions that actually occur, such as ```exit```, ```save``` or ```copy``` are all command implementations of ```CommandInterface```. A GUI Window to recieve exit, document to receive save, and ```ClipboardManager``` to receive copy commands are all examples of possible ```Receivers```.
+
+So the command pattern allows you to map certain invokers to commands. You, the client, invoke certain invokers that invoke certain commands that interact with the receivers
+
+Here is the UML Diagram:
+
+![Command pattern UML](screenshots_for_notes/Chapter9_screenshots/CommandPatternUMLStructure.PNG)
+
+Here is an implementation in python:
+
+```Python
+import sys
+
+
+class Window:
+    def exit(self):
+        sys.exit(0)
+
+
+class Document:
+    def __init__(self, filename):
+        self.filename = filename
+        self.contents = "This file cannot be modified"
+
+    def save(self):
+        with open(self.filename, "w") as file:
+            file.write(self.contents)
+
+
+class ToolbarButton:
+    def __init__(self, name, iconname):
+        self.name = name
+        self.iconname = iconname
+
+    def click(self):
+        self.command.execute()
+
+
+class MenuItem:
+    def __init__(self, menu_name, menuitem_name):
+        self.menu = menu_name
+        self.item = menuitem_name
+
+    def click(self):
+        self.command.execute()
+
+
+class KeyboardShortcut:
+    def __init__(self, key, modifier):
+        self.key = key
+        self.modifier = modifier
+
+    def keypress(self):
+        self.command.execute()
+
+
+class SaveCommand:
+    def __init__(self, document):
+        self.document = document
+
+    def execute(self):
+        self.document.save()
+
+
+class ExitCommand:
+    def __init__(self, window):
+        self.window = window
+
+    def execute(self):
+        self.window.exit()
+
+
+if __name__ == '__main__':
+    # Receivers
+    window = Window()
+    document = Document("a_document.txt")
+    # Commands
+    save = SaveCommand(document)
+    exit = ExitCommand(window)
+
+    # Invokers
+    save_button = ToolbarButton("save", "save.png")
+    save_keystroke = KeyboardShortcut("s", "ctrl")
+    exit_menu = MenuItem("File", "Exit")
+
+    # Setting the commands on the invokers
+    save_button.command = save
+    save_keystroke.command = save
+    exit_menu.command = exit
+
+    # You ( the client ) invoke the invokers that invoke the commands that interact with the receivers
+```
+
+The most important part of the implementation in order to fully grasp the command pattern is the last part:
+
+```Python
+# Receivers
+window = Window()
+document = Document("a_document.txt")
+# Commands
+save = SaveCommand(document)
+exit = ExitCommand(window)
+
+# Invokers
+save_button = ToolbarButton("save", "save.png")
+save_keystroke = KeyboardShortcut("s", "ctrl")
+exit_menu = MenuItem("File", "Exit")
+
+# Setting the commands on the invokers
+save_button.command = save
+save_keystroke.command = save
+exit_menu.command = exit
+
+# You ( the client ) invoke the invokers that invoke the commands that interact with the receivers
+```
+
+We have certain ```Invokers``` ( ```ToolbarButton```, ```KeyboardShortcut```, ```MenuItem```). These invokers will invoke a command ( ```SaveCommand```, ```ExitCommand``` ). The commands will, in the end, interfact with certain receivers ( ```window```, ```document``` ). 
+For example: if you use the keyboard shortcut ```ctrl+s``` ( which is an ```Invoker``` ), you have invoked the ```save``` command. The ```save``` command then, interacts with a ```Receiver```, that in our case being the ```Window```.
