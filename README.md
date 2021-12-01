@@ -1713,6 +1713,15 @@ Here is an implementation in python:
 ```Python
 import sys
 
+root = Folder("")
+def get_path(path):
+    names = path.split("/")[1:]
+    node = root
+    for name in names:
+        node = node.children[name]
+
+    return node
+
 
 class Window:
     def exit(self):
@@ -1913,3 +1922,44 @@ if __name__ == '__main__':
 ```
 
 So we have 2 format factories (```USAFormatterFactory``` and ```FranceFormatterFactory```) containing two types of formatters ( ```DateFormatter``` and ```CurrencyFormatter``` ). Depending on the country, the interface stays the same, but the implementation changes. This allows you to change be more flexible depending on certain configurations.
+
+## Composite Pattern
+
+> The composite pattern allows complex tree-like structures to be built from simple components. Composite objects are simply container objects, where teh content may actually be another composite object.
+
+The composite pattern has a tree structure. You have a component class that represents an interface. The composite pattern also contains a Composite class that overrides the method some_action() and is also able to connect to another child element. The leaf element, just like in trees, doesn't have any other child elements but can still perform an action
+
+![Composite Factory pattern UML](screenshots_for_notes/Chapter9_screenshots/CompositePatternUMLStructure.PNG)
+
+Here is a folder/file structure where the composite pattern is implemented:
+
+```Python
+class Component:
+    def __init__(self, name):
+        self.name = name
+
+    def move(self, new_path):
+        new_folder = get_path(new_path)
+        del self.parent.children[self.name]
+        new_folder.children[self.name] = self
+        self.parent = new_folder
+
+    def delete(self):
+        del self.parent.children[self.name]
+
+
+class Folder(Component):
+    def __init__(self, name):
+        super().__init__(name)
+        self.children = {}
+
+    def add_child(self, child):
+        child.parent = self
+        self.children[child.name] = child
+
+class File(Component):
+    def __init__(self, name, contents):
+        super().__init__(name)
+        self.contents = contents
+
+```
