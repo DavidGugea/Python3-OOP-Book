@@ -1963,3 +1963,39 @@ class File(Component):
         self.contents = contents
 
 ```
+
+# Chapter 10: Files and Strings
+
+When opening files you can use a context manager with the keyword ```with```. When using a context manager you don't have to open or close the file anymore, manually. That means that the methods ```__enter__``` and ```__exit__``` will be called automatically at the start and at the end of the context manager.
+
+The context manager doesn't only have to be used with files, it can also be used with normal classes that override ```__enter__``` and ```__exit__```. Example:
+
+```Python
+class TestClass:
+    def __init__(self, value):
+        self.value = value
+
+    def __enter__(self):
+        print("Test enter")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print("Test exit")
+        super().__init__()
+
+
+if __name__ == '__main__':
+    with TestClass(5) as test_class:
+        print(test_class.value)
+
+"""
+Output:
+Test enter
+5
+Test exit
+"""
+```
+
+In this example the ```__enter__``` and ```__exit__``` have been changed and you can see from the output that the ```__enter__``` method is called first in the context manager and after the context manager has finished executing, the method ```__exit__``` is called.
+This can be used for clean up code, for threading, etc.
+
