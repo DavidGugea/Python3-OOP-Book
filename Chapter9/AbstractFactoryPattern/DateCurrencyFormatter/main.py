@@ -43,7 +43,7 @@ class USACurrencyFormatter:
             cents = f"0{cents}"
 
         digits = []
-        for i, c in enumerate(reversed(base))
+        for i, c in enumerate(reversed(base)):
             if i and not i % 3:
                 digits.append(",")
 
