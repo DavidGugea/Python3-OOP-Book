@@ -1818,3 +1818,98 @@ exit_menu.command = exit
 
 We have certain ```Invokers``` ( ```ToolbarButton```, ```KeyboardShortcut```, ```MenuItem```). These invokers will invoke a command ( ```SaveCommand```, ```ExitCommand``` ). The commands will, in the end, interfact with certain receivers ( ```window```, ```document``` ). 
 For example: if you use the keyboard shortcut ```ctrl+s``` ( which is an ```Invoker``` ), you have invoked the ```save``` command. The ```save``` command then, interacts with a ```Receiver```, that in our case being the ```Window```.
+
+## Abstract factory pattern
+
+> The abstract factory pattern is normally used when we have multiple possible implementations of a system that depend on some configuration or platform issue. The calling code requests an objectg from the abstract factory, not knowing exactly what class of object will be retruned. The underlying implementation returned may depend on a varierty of factors, such as current locale, operating system, or local configuration.
+
+The abstract factory pattern is used when we have multiple implementations that are depend on some configuration or platform. The implementations of the factories all inherit one certain instance.
+
+Here is an example with an UML Diagram:
+
+![Abstract Factory pattern UML](screenshots_for_notes/Chapter9_screenshots/AbstractFactoryPatternUMLStructure.PNG)
+
+Here is the example in python, without interfaces:
+
+```Python
+class FranceDateFormatter:
+    def formate_date(self, y, m, d):
+        y, m, d = (str(x) for x in (y, m, d))
+        y = '20{0}'.format(y if len(y) == 2 else y)
+        m = '0{0}'.format(m if len(m) == 1 else m)
+        d = '0{0}'.format(d if len(d) == 1 else d)
+        return "{0}/{1}/{2}".format(d, m, y)
+
+
+class USADateFormatter:
+    def format_date(self, y, m, d):
+        y, m, d = (str(x) for x in (y, m, d))
+        y = '20{0}'.format(y if len(y) == 2 else y)
+        m = '0{0}'.format(m if len(m) == 1 else m)
+        d = '0{0}'.format(d if len(d) == 1 else d)
+        return "{0}-{1}-{2}".format(m, d, y)
+
+
+class FranceCurrencyFormatter:
+    def format_currency(self, base, cents):
+        base, cents = (str(x) for x in (base, cents))
+        if len(cents) == 0:
+            cents = "00"
+        elif len(cents) == 1:
+            cents = f"0{cents}"
+
+        digits = []
+        for i, c in enumerate(reversed(base)):
+            if i and not i % 3:
+                digits.append(' ')
+            digits.append(c)
+
+        base = ''.join(reversed(digits))
+        return "{0}€{1}".format(base, cents)
+
+
+class USACurrencyFormatter:
+    def format_currency(self, base, cents):
+        base, cents = (str(x) for x in (base, cents))
+        if len(cents) == 0:
+            cents = "00"
+        elif len(cents) == 1:
+            cents = f"0{cents}"
+
+        digits = []
+        for i, c in enumerate(reversed(base))
+            if i and not i % 3:
+                digits.append(",")
+
+            digits.append(c)
+
+        base = ''.join(reversed(digits))
+        return "${0}.{1}".format(base, cents)
+
+
+class USAFormatterFactory:
+    def create_date_formatter(self):
+        return USADateFormatter
+
+    def create_currency_formatter(self):
+        return USACurrencyFormatter()
+
+
+class FranceFormatterFactory:
+    def create_date_formatter(self):
+        return FranceDateFormatter()
+
+    def create_currency_formatter(self):
+        return FranceCurrencyFormatter()
+
+
+if __name__ == '__main__':
+    country_code = "US"
+    factory_map = {
+        "USA" : USAFormatterFactory,
+        "FR" : FranceFormatterFactory
+    }
+    formatter_factory = factory_map.get(country_code)()
+```
+
+So we have 2 format factories (```USAFormatterFactory``` and ```FranceFormatterFactory```) containing two types of formatters ( ```DateFormatter``` and ```CurrencyFormatter``` ). Depending on the country, the interface stays the same, but the implementation changes. This allows you to change be more flexible depending on certain configurations.
